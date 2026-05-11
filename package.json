@@ -1,0 +1,15 @@
+{
+  "name": "vibesong-silksong-clone",
+  "version": "0.1.0",
+  "description": "A lightweight Phaser clone inspired by Hollow Knight: Silksong.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npx serve . --single --listen 8080",
+    "dev": "npm run start"
+  },
+  "dependencies": {
+    "phaser": "^3.60.0",
+    "serve": "^14.2.0"
+  }
+}

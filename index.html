@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibesong: Hollow Knight Silksong Clone</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #2f1f5e 0%, #0b1322 45%, #090f1b 100%);
+      overflow: hidden;
+      color: #e7e7e7;
+      font-family: Inter, sans-serif;
+    }
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+    }
+    .instructions {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      color: #d3d3d3;
+      font-size: 0.9rem;
+      pointer-events: none;
+      user-select: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container"></div>
+  <div class="instructions">
+    WASD / Arrow keys to move, Z to jump, X to attack, C to dash, R to restart.
+  </div>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
