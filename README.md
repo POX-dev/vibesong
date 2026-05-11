@@ -6,6 +6,7 @@ A lightweight Phaser ripoff inspired by *Hollow Knight: Silksong*.
 
 - Player movement: run, jump, wall jump
 - Dash and melee attack
+- Tilemap-based level layout
 - Health and silk systems
 - Patrolling enemies, hazards, and door transitions
 - Simple room UI and status display

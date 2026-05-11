@@ -3,6 +3,9 @@ import * as Phaser from '/node_modules/phaser/dist/phaser.esm.js';
 export default class UIScene extends Phaser.Scene {
   constructor() {
     super('UIScene');
+    this.currentHealth = null;
+    this.currentSilk = null;
+    this.currentRoom = null;
   }
 
   create() {
@@ -15,11 +18,20 @@ export default class UIScene extends Phaser.Scene {
   }
 
   updateStatus(health, silk) {
-    this.healthText.setText(`Health: ${health}`);
-    this.silkText.setText(`Silk: ${silk}`);
+    if (health !== this.currentHealth) {
+      this.currentHealth = health;
+      this.healthText.setText(`Health: ${health}`);
+    }
+    if (silk !== this.currentSilk) {
+      this.currentSilk = silk;
+      this.silkText.setText(`Silk: ${silk}`);
+    }
   }
 
   updateRoom(roomName) {
-    this.roomText.setText(`Room: ${roomName}`);
+    if (roomName !== this.currentRoom) {
+      this.currentRoom = roomName;
+      this.roomText.setText(`Room: ${roomName}`);
+    }
   }
 }

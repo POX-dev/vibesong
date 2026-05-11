@@ -4,20 +4,22 @@ export default class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
     this.roomIndex = 0;
+    this.currentRoom = null;
   }
 
   create() {
     this.cameras.main.setBackgroundColor('#0b1322');
     this.createPlayer();
     this.createRoom();
+    this.createTilemap();
     this.createControls();
     this.createEnemies();
-    this.createHazards();
-    this.createDoor();
     this.createParticles();
 
+    this.currentRoom = this.getRoomName();
     this.events.on('wake', this.onWake, this);
-    this.scene.get('UIScene').events.emit('update-status', this.player.health, this.player.silk, this.getRoomName());
+    this.scene.get('UIScene').events.emit('update-status', this.player.health, this.player.silk, this.currentRoom);
+    this.scene.get('UIScene').events.emit('update-room', this.currentRoom);
   }
 
   createRoom() {
@@ -27,35 +29,16 @@ export default class GameScene extends Phaser.Scene {
     this.add.line(0, 80, 80, 120, 320, 240, 0x845add, 0.18).setOrigin(0);
     this.add.line(0, 0, 700, 60, 940, 200, 0xa686ff, 0.14).setOrigin(0);
     this.add.line(0, 0, 160, 580, 340, 360, 0xffc6f7, 0.1).setOrigin(0);
-
-    this.platforms = this.physics.add.staticGroup();
-    this.createTilePlatform(480, 620, 960, 40, 0x1f1733);
-    this.createTilePlatform(60, 330, 120, 520, 0x1b1331);
-    this.createTilePlatform(900, 330, 120, 520, 0x1b1331);
-    this.createTilePlatform(240, 500, 320, 28, 0x513d7a);
-    this.createTilePlatform(720, 420, 300, 28, 0x5e4aa1);
-    this.createTilePlatform(500, 320, 260, 28, 0x6451aa);
-    this.createTilePlatform(280, 220, 220, 28, 0x7b63d3);
-    this.createTilePlatform(760, 200, 220, 28, 0x7a5be0);
-
-    this.physics.add.collider(this.platforms, this.player);
   }
 
-  createTilePlatform(x, y, width, height, color) {
-    const tileSize = 38;
-    const count = Math.max(1, Math.round(width / tileSize));
-    const tileWidth = width / count;
-    for (let i = 0; i < count; i++) {
-      const tile = this.add.rectangle(
-        x - width / 2 + tileWidth * i + tileWidth / 2,
-        y,
-        tileWidth - 2,
-        height,
-        color,
-      );
-      tile.setStrokeStyle(1, 0xf0e7ff, 0.12);
-      this.platforms.add(tile);
-    }
+  createTilemap() {
+    const map = this.make.tilemap({ key: 'level' });
+    const tileset = map.addTilesetImage('tiles', 'tiles', 32, 32, 0, 0);
+    this.groundLayer = map.createLayer('Ground', tileset, 0, 0);
+    this.groundLayer.setCollision([1, 2, 3]);
+    this.groundLayer.setTileIndexCallback(3, this.onPlayerHitHazard, this);
+    this.groundLayer.setTileIndexCallback(4, this.enterDoor, this);
+    this.physics.add.collider(this.player, this.groundLayer);
   }
 
   createPlayer() {
@@ -98,23 +81,8 @@ export default class GameScene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.spawnEnemy(620, 560, 140, 760);
     this.spawnEnemy(760, 160, 680, 840);
-    this.physics.add.collider(this.enemies, this.platforms);
+    this.physics.add.collider(this.enemies, this.groundLayer);
     this.physics.add.overlap(this.player, this.enemies, this.onPlayerHit, null, this);
-  }
-
-  createHazards() {
-    this.hazards = this.physics.add.staticGroup();
-    this.hazards.add(this.add.rectangle(430, 600, 120, 32, 0xe2605c));
-    this.hazards.add(this.add.rectangle(780, 380, 140, 32, 0xe2605c));
-    this.physics.add.overlap(this.player, this.hazards, this.onPlayerHitHazard, null, this);
-  }
-
-  createDoor() {
-    this.door = this.physics.add.staticSprite(890, 520, null).setSize(32, 72).setOrigin(0.5, 0.5);
-    const glow = this.add.rectangle(0, 0, 34, 78, 0xc19cff, 0.25).setOrigin(0.5);
-    const doorCenter = this.add.rectangle(0, 0, 24, 68, 0xfff3a3).setOrigin(0.5);
-    this.doorDraw = this.add.container(890, 520, [glow, doorCenter]).setDepth(3);
-    this.physics.add.overlap(this.player, this.door, this.enterDoor, null, this);
   }
 
   createParticles() {
@@ -221,7 +189,11 @@ export default class GameScene extends Phaser.Scene {
     this.updatePlayer();
     this.updateEnemies();
     this.updateDraw();
-    this.scene.get('UIScene').events.emit('update-room', this.getRoomName());
+    const roomName = this.getRoomName();
+    if (roomName !== this.currentRoom) {
+      this.currentRoom = roomName;
+      this.scene.get('UIScene').events.emit('update-room', roomName);
+    }
   }
 
   updatePlayer() {
